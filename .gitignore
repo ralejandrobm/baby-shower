@@ -1,0 +1,35 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Build de React (se genera en el Dockerfile)
+frontend/dist/
+server/public/
+
+# Datos de confirmados (no versionar info personal)
+server/data/
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Vite cache
+.vite/
+**/.vite/
