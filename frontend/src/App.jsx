@@ -54,39 +54,9 @@ function Divider() {
 
 function BearSVG({ size = 130 }) {
   return (
-    <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg"
+    <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"
       style={{ width: size, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.15))" }}>
-      <ellipse cx="80" cy="40" rx="14" ry="18" fill="#b0d8f0" opacity="0.9" />
-      <ellipse cx="100" cy="28" rx="14" ry="18" fill="#d4c9a8" opacity="0.9" />
-      <ellipse cx="120" cy="38" rx="13" ry="17" fill="#b0d8f0" opacity="0.85" />
-      <ellipse cx="60" cy="52" rx="12" ry="16" fill="#d4c9a8" opacity="0.85" />
-      <ellipse cx="140" cy="50" rx="12" ry="16" fill="#b0d8f0" opacity="0.8" />
-      <line x1="80" y1="58" x2="95" y2="100" stroke="#888" strokeWidth="1" opacity="0.5" />
-      <line x1="100" y1="46" x2="98" y2="100" stroke="#888" strokeWidth="1" opacity="0.5" />
-      <line x1="120" y1="55" x2="102" y2="100" stroke="#888" strokeWidth="1" opacity="0.5" />
-      <line x1="60" y1="68" x2="93" y2="100" stroke="#888" strokeWidth="1" opacity="0.5" />
-      <line x1="140" y1="66" x2="105" y2="100" stroke="#888" strokeWidth="1" opacity="0.5" />
-      <ellipse cx="100" cy="180" rx="38" ry="48" fill="#c8a06e" />
-      <ellipse cx="100" cy="190" rx="22" ry="28" fill="#e2c08e" />
-      <ellipse cx="62" cy="165" rx="14" ry="10" fill="#c8a06e" transform="rotate(-30 62 165)" />
-      <ellipse cx="138" cy="165" rx="14" ry="10" fill="#c8a06e" transform="rotate(30 138 165)" />
-      <ellipse cx="82" cy="222" rx="16" ry="10" fill="#c8a06e" />
-      <ellipse cx="118" cy="222" rx="16" ry="10" fill="#c8a06e" />
-      <circle cx="100" cy="130" r="36" fill="#c8a06e" />
-      <circle cx="72" cy="102" r="14" fill="#c8a06e" />
-      <circle cx="72" cy="102" r="8" fill="#e2c08e" />
-      <circle cx="128" cy="102" r="14" fill="#c8a06e" />
-      <circle cx="128" cy="102" r="8" fill="#e2c08e" />
-      <ellipse cx="100" cy="138" rx="18" ry="14" fill="#e2c08e" />
-      <circle cx="88" cy="124" r="5" fill="#3a2a1a" />
-      <circle cx="112" cy="124" r="5" fill="#3a2a1a" />
-      <circle cx="90" cy="122" r="2" fill="white" opacity="0.7" />
-      <circle cx="114" cy="122" r="2" fill="white" opacity="0.7" />
-      <ellipse cx="100" cy="135" rx="6" ry="4" fill="#8a5a3a" />
-      <path d="M93 140 Q100 147 107 140" stroke="#8a5a3a" strokeWidth="1.5" fill="none" />
-      <path d="M86 152 Q100 145 114 152 Q100 159 86 152Z" fill="#b0d8f0" opacity="0.9" />
-      <circle cx="100" cy="152" r="4" fill="#7ab8d8" />
-      <circle cx="97" cy="105" r="8" fill="#c8a06e" />
+      
     </svg>
   );
 }
@@ -128,15 +98,15 @@ function Home() {
     }
   };
 
-  // En móvil el ancho del card es 70% de la pantalla
-  const cardWidth = isMobile ? "70%" : "100%";
+  // En móvil el ancho del card es 78% de la pantalla
+  const cardWidth = isMobile ? "78%" : "100%";
   const maxW = isMobile ? 360 : 480;
 
   return (
     <PageWrapper>
       {/* Osito — más pequeño en móvil */}
       <div style={{ marginBottom: "-1rem", marginTop: "0.5rem" }}>
-        
+        <BearSVG/>
       </div>
 
       {/* Card principal */}
@@ -190,7 +160,7 @@ function Home() {
           </button>
 
           {formOpen && (
-            <div style={{ ...cardStyle, padding: "1.2rem", width: "70%", maxWidth: 360, marginTop: "0.75rem" }}>
+            <div style={{ ...cardStyle, padding: "1.2rem", width: "78%", maxWidth: 360, marginTop: "0.75rem" }}>
               <FormFields
                 name={name} setName={setName}
                 count={count} setCount={setCount}
@@ -204,7 +174,7 @@ function Home() {
 
           {/* Mensaje de éxito fuera del form si se cerró */}
           {!formOpen && status === "success" && (
-            <div style={{ marginTop: "0.75rem", background: "rgba(200,245,220,0.6)", borderRadius: 10, padding: "0.8rem 1rem", textAlign: "center", color: "#1a5c3a", fontSize: "0.82rem", width: "70%", maxWidth: 360, ...cardStyle }}>
+            <div style={{ marginTop: "0.75rem", background: "rgba(200,245,220,0.6)", borderRadius: 10, padding: "0.8rem 1rem", textAlign: "center", color: "#1a5c3a", fontSize: "0.82rem", width: "78%", maxWidth: 360, ...cardStyle }}>
               {msg}
             </div>
           )}
@@ -225,7 +195,7 @@ function Home() {
       )}
 
       {/* Mapa — más pequeño en móvil */}
-      <div style={{ ...cardStyle, width: isMobile ? "70%" : "100%", maxWidth: isMobile ? 360 : 480, marginTop: "1.5rem", overflow: "hidden" }}>
+      <div style={{ ...cardStyle, width: isMobile ? "78%" : "100%", maxWidth: isMobile ? 360 : 480, marginTop: "1.5rem", overflow: "hidden" }}>
         <div style={{ background: "rgba(26,58,92,0.75)", color: "white", textAlign: "center", padding: 8, fontSize: "0.7rem", letterSpacing: 2, textTransform: "uppercase" }}>
           📍 Ubicación del evento
         </div>

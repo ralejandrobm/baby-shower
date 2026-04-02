@@ -12,16 +12,16 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
 
-// Helpers
-function leerConfirmados() {
+function leerLineas() {
   if (!fs.existsSync(DATA_FILE)) return [];
-  return fs.readFileSync(DATA_FILE, "utf-8")
-    .split("\n")
-    .filter(Boolean)
-    .map((linea) => {
-      const [fecha, nombre, cantidad] = linea.split(" | ");
-      return { fecha, nombre, cantidad: parseInt(cantidad, 10) };
-    });
+  return fs.readFileSync(DATA_FILE, "utf-8").split("\n").filter(Boolean);
+}
+
+function lineasAObjetos(lineas) {
+  return lineas.map((linea) => {
+    const [fecha, nombre, cantidad] = linea.split(" | ");
+    return { fecha, nombre, cantidad: parseInt(cantidad, 10) };
+  });
 }
 
 // POST /api/confirmar
@@ -37,10 +37,10 @@ app.post("/api/confirmar", (req, res) => {
 
 // GET /api/confirmados
 app.get("/api/confirmados", (req, res) => {
-  res.json({ confirmados: leerConfirmados() });
+  res.json({ confirmados: lineasAObjetos(leerLineas()) });
 });
 
-// DELETE /api/confirmados — borra todos los confirmados
+// DELETE /api/confirmados — borra todos
 app.delete("/api/confirmados", (req, res) => {
   fs.writeFile(DATA_FILE, "", (err) => {
     if (err) return res.status(500).json({ error: "No se pudo borrar." });
@@ -48,12 +48,24 @@ app.delete("/api/confirmados", (req, res) => {
   });
 });
 
-// GET /api/confirmados/excel — descarga CSV compatible con Excel
-app.get("/api/confirmados/excel", (req, res) => {
-  const confirmados = leerConfirmados();
-  const total = confirmados.reduce((acc, c) => acc + c.cantidad, 0);
+// DELETE /api/confirmados/:index — borra uno por índice
+app.delete("/api/confirmados/:index", (req, res) => {
+  const idx = parseInt(req.params.index, 10);
+  const lineas = leerLineas();
+  if (isNaN(idx) || idx < 0 || idx >= lineas.length) {
+    return res.status(400).json({ error: "Índice inválido." });
+  }
+  lineas.splice(idx, 1);
+  fs.writeFile(DATA_FILE, lineas.join("\n") + (lineas.length ? "\n" : ""), (err) => {
+    if (err) return res.status(500).json({ error: "No se pudo borrar." });
+    res.json({ ok: true });
+  });
+});
 
-  // BOM para que Excel abra UTF-8 correctamente
+// GET /api/confirmados/excel
+app.get("/api/confirmados/excel", (req, res) => {
+  const confirmados = lineasAObjetos(leerLineas());
+  const total = confirmados.reduce((acc, c) => acc + c.cantidad, 0);
   const bom = "\uFEFF";
   const filas = confirmados.map((c) => {
     const fecha = new Date(c.fecha).toLocaleString("es-MX", {
@@ -62,16 +74,7 @@ app.get("/api/confirmados/excel", (req, res) => {
     });
     return `"${fecha}","${c.nombre}",${c.cantidad}`;
   });
-
-  const csv = [
-    bom,
-    "Fecha,Nombre,Personas",
-    ...filas,
-    "",
-    `Total confirmados,${confirmados.length}`,
-    `Total personas,${total}`,
-  ].join("\n");
-
+  const csv = [bom, "Fecha,Nombre,Personas", ...filas, "", `Total confirmados,${confirmados.length}`, `Total personas,${total}`].join("\n");
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
   res.setHeader("Content-Disposition", "attachment; filename=confirmados_baby_shower.csv");
   res.send(csv);
