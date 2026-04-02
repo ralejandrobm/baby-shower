@@ -1,6 +1,44 @@
 import { useState, useEffect } from "react";
 
-// ── utilidades visuales ────────────────────────────────────────
+// ── Fondo fijo compatible con iOS/Android ──────────────────────
+function PageWrapper({ children }) {
+  return (
+    <div style={{ position: "relative", minHeight: "100vh", fontFamily: "'Lato', sans-serif" }}>
+      {/* position:fixed es la única forma confiable de fondo fijo en móvil */}
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        backgroundImage: "url('/bg.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center top",
+        backgroundRepeat: "no-repeat",
+        zIndex: 0,
+      }} />
+      <div style={{
+        position: "relative",
+        zIndex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "2rem 1rem 4rem",
+        minHeight: "100vh",
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Card transparente compartido ───────────────────────────────
+const cardStyle = {
+  background: "rgba(255,255,255,0.30)",
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+  border: "1.5px solid rgba(255,255,255,0.55)",
+  borderRadius: 20,
+};
+
+// ── Componentes visuales ───────────────────────────────────────
 function Divider() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", margin: "0.6rem 0" }}>
@@ -10,6 +48,7 @@ function Divider() {
     </div>
   );
 }
+
 function BearSVG() {
   return (
     <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" style={{ width: 130, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.15))" }}>
@@ -48,24 +87,6 @@ function BearSVG() {
   );
 }
 
-const bgStyle = {
-  minHeight: "100vh",
-  backgroundImage: "url('/bg.png')",
-  backgroundSize: "cover",
-  backgroundPosition: "center top",
-  backgroundRepeat: "repeat-y",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  padding: "2rem 1rem 4rem",
-  fontFamily: "'Lato', sans-serif",
-  position: "relative",
-};
-
-function Background() {
-  return null;
-}
-
 // ── Página principal ───────────────────────────────────────────
 function Home() {
   const [name, setName] = useState("");
@@ -101,15 +122,14 @@ function Home() {
   };
 
   return (
-    <div style={bgStyle}>
-      <Background />
-
-      <div style={{ marginBottom: "-1rem", position: "relative", zIndex: 2, marginTop: "0.5rem" }}>
+    <PageWrapper>
+      {/* Osito */}
+      <div style={{ marginBottom: "-1rem", marginTop: "0.5rem" }}>
         <BearSVG />
       </div>
 
       {/* Card principal */}
-      <div style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(8px)", borderRadius: 24, padding: "2rem 2rem 1.5rem", maxWidth: 480, width: "100%", textAlign: "center", position: "relative", zIndex: 2, border: "1.5px solid rgba(255,255,255,0.9)" }}>
+      <div style={{ ...cardStyle, padding: "2rem 2rem 1.5rem", maxWidth: 480, width: "100%", textAlign: "center" }}>
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 700, color: "#1a3a5c", lineHeight: 1, letterSpacing: 2, textTransform: "uppercase", margin: 0 }}>
           Baby<br />Shower
         </h1>
@@ -118,11 +138,13 @@ function Home() {
         </p>
         <Divider />
         <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#1a3a5c", letterSpacing: 4, textTransform: "uppercase", margin: "0.3rem 0" }}>
-          Liam Alejandro
+          Líam Alejandro
         </h2>
         <Divider />
-        <p style={{ fontSize: "0.72rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "1.2rem 0 0.8rem" }}>Detalles del evento</p>
-        <div style={{ background: "rgba(200,230,245,0.4)", borderRadius: 12, padding: "1rem 1.2rem", textAlign: "left" }}>
+        <p style={{ fontSize: "0.72rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "1.2rem 0 0.8rem" }}>
+          Detalles del evento
+        </p>
+        <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, padding: "1rem 1.2rem", textAlign: "left" }}>
           {[
             { icon: "📅", text: <span>Domingo <strong>26 de Abril</strong></span> },
             { icon: "🕑", text: <strong>2:00 PM</strong> },
@@ -140,7 +162,7 @@ function Home() {
       </div>
 
       {/* Formulario */}
-      <div style={{ background: "rgba(255,255,255,0.85)", borderRadius: 16, padding: "1.5rem", maxWidth: 480, width: "100%", marginTop: "1.5rem", border: "1.5px solid rgba(255,255,255,0.9)", position: "relative", zIndex: 2 }}>
+      <div style={{ ...cardStyle, padding: "1.5rem", maxWidth: 480, width: "100%", marginTop: "1.5rem" }}>
         <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", color: "#1a3a5c", marginBottom: "1rem", textAlign: "center", fontWeight: 400 }}>
           Confirmar asistencia
         </h3>
@@ -149,7 +171,9 @@ function Home() {
           { label: "Número de personas", type: "number", val: count, set: setCount, placeholder: "¿Cuántos van?" },
         ].map((f, i) => (
           <div key={i} style={{ marginBottom: "1rem", textAlign: "left" }}>
-            <label style={{ display: "block", fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase", color: "#3a6d8c", marginBottom: 6 }}>{f.label}</label>
+            <label style={{ display: "block", fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase", color: "#3a6d8c", marginBottom: 6 }}>
+              {f.label}
+            </label>
             <input
               type={f.type}
               placeholder={f.placeholder}
@@ -157,27 +181,48 @@ function Home() {
               min={f.type === "number" ? 1 : undefined}
               max={f.type === "number" ? 20 : undefined}
               onChange={(e) => { setStatus(null); f.set(e.target.value); }}
-              style={{ width: "100%", padding: "10px 14px", border: "1.5px solid #b0d8f0", borderRadius: 10, fontSize: "0.95rem", fontFamily: "'Lato', sans-serif", background: "rgba(255,255,255,0.9)", color: "#1a3a5c", outline: "none", boxSizing: "border-box" }}
+              style={{
+                width: "100%", padding: "10px 14px",
+                border: "1.5px solid rgba(255,255,255,0.7)",
+                borderRadius: 10, fontSize: "0.95rem",
+                fontFamily: "'Lato', sans-serif",
+                background: "rgba(255,255,255,0.35)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                color: "#1a3a5c", outline: "none", boxSizing: "border-box",
+              }}
             />
           </div>
         ))}
         <button
           onClick={handleConfirm}
           disabled={loading}
-          style={{ width: "100%", padding: 12, background: loading ? "#7a9ab8" : "#1a3a5c", color: "white", border: "none", borderRadius: 10, fontSize: "0.85rem", letterSpacing: 2, textTransform: "uppercase", cursor: loading ? "not-allowed" : "pointer", fontFamily: "'Lato', sans-serif", marginTop: "0.5rem" }}
+          style={{
+            width: "100%", padding: 12,
+            background: loading ? "rgba(122,154,184,0.7)" : "rgba(26,58,92,0.85)",
+            color: "white", border: "none", borderRadius: 10,
+            fontSize: "0.85rem", letterSpacing: 2, textTransform: "uppercase",
+            cursor: loading ? "not-allowed" : "pointer",
+            fontFamily: "'Lato', sans-serif", marginTop: "0.5rem",
+          }}
         >
           {loading ? "Guardando..." : "Confirmar asistencia"}
         </button>
         {status && (
-          <div style={{ marginTop: "0.75rem", background: status === "success" ? "rgba(200,245,220,0.8)" : "rgba(255,220,200,0.8)", borderRadius: 10, padding: "0.9rem", textAlign: "center", color: status === "success" ? "#1a5c3a" : "#8a3a1a", fontSize: "0.9rem" }}>
+          <div style={{
+            marginTop: "0.75rem",
+            background: status === "success" ? "rgba(200,245,220,0.6)" : "rgba(255,220,200,0.6)",
+            borderRadius: 10, padding: "0.9rem", textAlign: "center",
+            color: status === "success" ? "#1a5c3a" : "#8a3a1a", fontSize: "0.9rem",
+          }}>
             {msg}
           </div>
         )}
       </div>
 
       {/* Mapa */}
-      <div style={{ maxWidth: 480, width: "100%", marginTop: "1.5rem", borderRadius: 16, overflow: "hidden", border: "2px solid rgba(255,255,255,0.9)", position: "relative", zIndex: 2, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-        <div style={{ background: "#1a3a5c", color: "white", textAlign: "center", padding: 10, fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase" }}>
+      <div style={{ ...cardStyle, maxWidth: 480, width: "100%", marginTop: "1.5rem", overflow: "hidden" }}>
+        <div style={{ background: "rgba(26,58,92,0.75)", color: "white", textAlign: "center", padding: 10, fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase" }}>
           📍 Ubicación del evento
         </div>
         <iframe
@@ -188,10 +233,10 @@ function Home() {
         />
       </div>
 
-      <p style={{ marginTop: "1.5rem", fontSize: "0.75rem", color: "rgba(26,58,92,0.65)", letterSpacing: 2, textTransform: "uppercase", textAlign: "center", position: "relative", zIndex: 2 }}>
-        Con amor, esperando a Liam Alejandro 🩵
+      <p style={{ marginTop: "1.5rem", fontSize: "0.75rem", color: "rgba(26,58,92,0.75)", letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
+        Con amor, esperando a Líam Alejandro 🩵
       </p>
-    </div>
+    </PageWrapper>
   );
 }
 
@@ -217,29 +262,25 @@ function Confirmados() {
   };
 
   return (
-    <div style={bgStyle}>
-      <Background />
-
-      <div style={{ maxWidth: 520, width: "100%", position: "relative", zIndex: 2, marginTop: "1rem" }}>
-        {/* Header */}
+    <PageWrapper>
+      <div style={{ maxWidth: 520, width: "100%", marginTop: "1rem" }}>
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#1a3a5c", letterSpacing: 2, textTransform: "uppercase" }}>
             Confirmados
           </h1>
           <p style={{ fontSize: "0.72rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", marginTop: 6 }}>
-            Baby Shower · Liam Alejandro
+            Baby Shower · Líam Alejandro
           </p>
           <Divider />
         </div>
 
-        {/* Totales */}
         {!loading && !error && (
           <div style={{ display: "flex", gap: 12, marginBottom: "1.5rem" }}>
             {[
-              { label: "Invitados", value: lista.length },
+              { label: "Familias", value: lista.length },
               { label: "Total personas", value: total },
             ].map((m, i) => (
-              <div key={i} style={{ flex: 1, background: "rgba(255,255,255,0.8)", borderRadius: 14, padding: "1rem", textAlign: "center", border: "1.5px solid rgba(255,255,255,0.9)" }}>
+              <div key={i} style={{ ...cardStyle, flex: 1, padding: "1rem", textAlign: "center" }}>
                 <div style={{ fontSize: "2rem", fontWeight: 700, color: "#1a3a5c", fontFamily: "'Playfair Display', serif" }}>{m.value}</div>
                 <div style={{ fontSize: "0.72rem", letterSpacing: 2, textTransform: "uppercase", color: "#3a6d8c", marginTop: 4 }}>{m.label}</div>
               </div>
@@ -247,60 +288,41 @@ function Confirmados() {
           </div>
         )}
 
-        {/* Lista */}
-        <div style={{ background: "rgba(255,255,255,0.8)", borderRadius: 16, border: "1.5px solid rgba(255,255,255,0.9)", overflow: "hidden" }}>
-          {loading && (
-            <div style={{ padding: "2rem", textAlign: "center", color: "#3a6d8c", fontSize: "0.9rem" }}>Cargando...</div>
-          )}
-          {error && (
-            <div style={{ padding: "2rem", textAlign: "center", color: "#8a3a1a", fontSize: "0.9rem" }}>{error}</div>
-          )}
+        <div style={{ ...cardStyle, overflow: "hidden" }}>
+          {loading && <div style={{ padding: "2rem", textAlign: "center", color: "#3a6d8c", fontSize: "0.9rem" }}>Cargando...</div>}
+          {error && <div style={{ padding: "2rem", textAlign: "center", color: "#8a3a1a", fontSize: "0.9rem" }}>{error}</div>}
           {!loading && !error && lista.length === 0 && (
-            <div style={{ padding: "2rem", textAlign: "center", color: "#3a6d8c", fontSize: "0.9rem" }}>
-              Aún no hay confirmaciones 🩵
-            </div>
+            <div style={{ padding: "2rem", textAlign: "center", color: "#3a6d8c", fontSize: "0.9rem" }}>Aún no hay confirmaciones 🩵</div>
           )}
           {!loading && lista.map((c, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "0.9rem 1.2rem",
-                borderBottom: i < lista.length - 1 ? "1px solid rgba(176,216,240,0.4)" : "none",
-                gap: 12,
-              }}
-            >
-              {/* Avatar */}
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#b0d8f0", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.95rem", color: "#1a3a5c", flexShrink: 0 }}>
+            <div key={i} style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "0.9rem 1.2rem", gap: 12,
+              borderBottom: i < lista.length - 1 ? "1px solid rgba(176,216,240,0.35)" : "none",
+            }}>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(176,216,240,0.6)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.95rem", color: "#1a3a5c", flexShrink: 0 }}>
                 {c.nombre.charAt(0).toUpperCase()}
               </div>
-              {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, color: "#1a3a5c", fontSize: "0.95rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {c.nombre}
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "#3a6d8c", marginTop: 2 }}>
-                  {formatDate(c.fecha)}
-                </div>
+                <div style={{ fontSize: "0.75rem", color: "#3a6d8c", marginTop: 2 }}>{formatDate(c.fecha)}</div>
               </div>
-              {/* Cantidad */}
-              <div style={{ background: "#1a3a5c", color: "white", borderRadius: 20, padding: "4px 14px", fontSize: "0.82rem", fontWeight: 700, flexShrink: 0, whiteSpace: "nowrap" }}>
+              <div style={{ background: "rgba(26,58,92,0.8)", color: "white", borderRadius: 20, padding: "4px 14px", fontSize: "0.82rem", fontWeight: 700, flexShrink: 0, whiteSpace: "nowrap" }}>
                 {c.cantidad} {c.cantidad === 1 ? "persona" : "personas"}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Botón volver */}
         <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-          <a href="/" style={{ fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase", color: "#1a3a5c", textDecoration: "none", background: "rgba(255,255,255,0.7)", padding: "10px 24px", borderRadius: 10, border: "1.5px solid rgba(255,255,255,0.9)" }}>
+          <a href="/" style={{ fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase", color: "#1a3a5c", textDecoration: "none", ...cardStyle, padding: "10px 24px", borderRadius: 10, display: "inline-block" }}>
             ← Volver a la invitación
           </a>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 
