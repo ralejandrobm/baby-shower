@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 function PageWrapper({ children }) {
   return (
     <div style={{ position: "relative", minHeight: "100vh", fontFamily: "'Lato', sans-serif" }}>
-      {/* position:fixed es la única forma confiable de fondo fijo en móvil */}
       <div style={{
-        position: "fixed",
-        inset: 0,
+        position: "fixed", inset: 0,
         backgroundImage: "url('/bg.png')",
         backgroundSize: "cover",
         backgroundPosition: "center top",
@@ -15,13 +13,9 @@ function PageWrapper({ children }) {
         zIndex: 0,
       }} />
       <div style={{
-        position: "relative",
-        zIndex: 1,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "2rem 1rem 4rem",
-        minHeight: "100vh",
+        position: "relative", zIndex: 1,
+        display: "flex", flexDirection: "column", alignItems: "center",
+        padding: "2rem 1rem 4rem", minHeight: "100vh",
       }}>
         {children}
       </div>
@@ -29,7 +23,6 @@ function PageWrapper({ children }) {
   );
 }
 
-// ── Card transparente compartido ───────────────────────────────
 const cardStyle = {
   background: "rgba(255,255,255,0.30)",
   backdropFilter: "blur(14px)",
@@ -38,7 +31,6 @@ const cardStyle = {
   borderRadius: 20,
 };
 
-// ── Componentes visuales ───────────────────────────────────────
 function Divider() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", margin: "0.6rem 0" }}>
@@ -123,9 +115,8 @@ function Home() {
 
   return (
     <PageWrapper>
-      {/* Osito */}
       <div style={{ marginBottom: "-1rem", marginTop: "0.5rem" }}>
-        <BearSVG />
+      
       </div>
 
       {/* Card principal */}
@@ -138,7 +129,7 @@ function Home() {
         </p>
         <Divider />
         <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#1a3a5c", letterSpacing: 4, textTransform: "uppercase", margin: "0.3rem 0" }}>
-          Líam Alejandro
+          Liam Alejandro
         </h2>
         <Divider />
         <p style={{ fontSize: "0.72rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "1.2rem 0 0.8rem" }}>
@@ -183,12 +174,10 @@ function Home() {
               onChange={(e) => { setStatus(null); f.set(e.target.value); }}
               style={{
                 width: "100%", padding: "10px 14px",
-                border: "1.5px solid rgba(255,255,255,0.7)",
-                borderRadius: 10, fontSize: "0.95rem",
-                fontFamily: "'Lato', sans-serif",
+                border: "1.5px solid rgba(255,255,255,0.7)", borderRadius: 10,
+                fontSize: "0.95rem", fontFamily: "'Lato', sans-serif",
                 background: "rgba(255,255,255,0.35)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
+                backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
                 color: "#1a3a5c", outline: "none", boxSizing: "border-box",
               }}
             />
@@ -234,7 +223,7 @@ function Home() {
       </div>
 
       <p style={{ marginTop: "1.5rem", fontSize: "0.75rem", color: "rgba(26,58,92,0.75)", letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
-        Con amor, esperando a Líam Alejandro 🩵
+        Con amor, esperando a Liam Alejandro 🩵
       </p>
     </PageWrapper>
   );
@@ -245,35 +234,70 @@ function Confirmados() {
   const [lista, setLista] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [confirmandoBorrar, setConfirmandoBorrar] = useState(false);
+  const [borrando, setBorrando] = useState(false);
 
-  useEffect(() => {
+  const cargar = () => {
+    setLoading(true);
     fetch("/api/confirmados")
       .then((r) => r.json())
       .then((d) => { setLista(d.confirmados); setLoading(false); })
       .catch(() => { setError("No se pudo cargar la lista."); setLoading(false); });
-  }, []);
+  };
+
+  useEffect(() => { cargar(); }, []);
 
   const total = lista.reduce((acc, c) => acc + c.cantidad, 0);
 
   const formatDate = (iso) => {
     try {
-      return new Date(iso).toLocaleDateString("es-MX", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+      return new Date(iso).toLocaleString("es-MX", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
     } catch { return iso; }
+  };
+
+  const descargarExcel = () => {
+    window.location.href = "/api/confirmados/excel";
+  };
+
+  const borrarTodo = async () => {
+    if (!confirmandoBorrar) {
+      setConfirmandoBorrar(true);
+      return;
+    }
+    setBorrando(true);
+    try {
+      await fetch("/api/confirmados", { method: "DELETE" });
+      setLista([]);
+      setConfirmandoBorrar(false);
+    } catch {
+      setError("No se pudo borrar.");
+    } finally {
+      setBorrando(false);
+    }
+  };
+
+  const btnBase = {
+    padding: "10px 18px", borderRadius: 10, fontSize: "0.78rem",
+    letterSpacing: 2, textTransform: "uppercase", cursor: "pointer",
+    fontFamily: "'Lato', sans-serif", border: "none", fontWeight: 700,
   };
 
   return (
     <PageWrapper>
       <div style={{ maxWidth: 520, width: "100%", marginTop: "1rem" }}>
+
+        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#1a3a5c", letterSpacing: 2, textTransform: "uppercase" }}>
             Confirmados
           </h1>
           <p style={{ fontSize: "0.72rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", marginTop: 6 }}>
-            Baby Shower · Líam Alejandro
+            Baby Shower · Liam Alejandro
           </p>
           <Divider />
         </div>
 
+        {/* Totales */}
         {!loading && !error && (
           <div style={{ display: "flex", gap: 12, marginBottom: "1.5rem" }}>
             {[
@@ -288,6 +312,45 @@ function Confirmados() {
           </div>
         )}
 
+        {/* Botones de acción */}
+        {!loading && !error && lista.length > 0 && (
+          <div style={{ display: "flex", gap: 10, marginBottom: "1rem", flexWrap: "wrap" }}>
+            {/* Descargar Excel */}
+            <button
+              onClick={descargarExcel}
+              style={{ ...btnBase, background: "rgba(26,92,58,0.82)", color: "white", flex: 1, minWidth: 140 }}
+            >
+              ⬇ Descargar Excel
+            </button>
+
+            {/* Borrar todo — doble confirmación */}
+            <button
+              onClick={borrarTodo}
+              disabled={borrando}
+              style={{
+                ...btnBase, flex: 1, minWidth: 140,
+                background: confirmandoBorrar ? "rgba(162,45,45,0.85)" : "rgba(255,255,255,0.35)",
+                color: confirmandoBorrar ? "white" : "#8a3a1a",
+                border: "1.5px solid rgba(162,45,45,0.5)",
+                backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+              }}
+            >
+              {borrando ? "Borrando..." : confirmandoBorrar ? "⚠ Confirmar borrado" : "🗑 Borrar todo"}
+            </button>
+
+            {/* Cancelar borrado */}
+            {confirmandoBorrar && (
+              <button
+                onClick={() => setConfirmandoBorrar(false)}
+                style={{ ...btnBase, background: "rgba(255,255,255,0.35)", color: "#3a6d8c", border: "1.5px solid rgba(255,255,255,0.6)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flex: 1, minWidth: 100 }}
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Lista */}
         <div style={{ ...cardStyle, overflow: "hidden" }}>
           {loading && <div style={{ padding: "2rem", textAlign: "center", color: "#3a6d8c", fontSize: "0.9rem" }}>Cargando...</div>}
           {error && <div style={{ padding: "2rem", textAlign: "center", color: "#8a3a1a", fontSize: "0.9rem" }}>{error}</div>}
@@ -316,6 +379,7 @@ function Confirmados() {
           ))}
         </div>
 
+        {/* Botón volver */}
         <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
           <a href="/" style={{ fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase", color: "#1a3a5c", textDecoration: "none", ...cardStyle, padding: "10px 24px", borderRadius: 10, display: "inline-block" }}>
             ← Volver a la invitación
