@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-// ── Fondo fijo compatible con iOS/Android ──────────────────────
+// ── Fondo fijo compatible iOS/Android ─────────────────────────
 function PageWrapper({ children }) {
   return (
     <div style={{ position: "relative", minHeight: "100vh", fontFamily: "'Lato', sans-serif" }}>
@@ -31,6 +31,17 @@ const cardStyle = {
   borderRadius: 20,
 };
 
+// ── Helpers ────────────────────────────────────────────────────
+function useIsMobile() {
+  const [mobile, setMobile] = useState(window.innerWidth <= 640);
+  useEffect(() => {
+    const fn = () => setMobile(window.innerWidth <= 640);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+  return mobile;
+}
+
 function Divider() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", margin: "0.6rem 0" }}>
@@ -41,9 +52,10 @@ function Divider() {
   );
 }
 
-function BearSVG() {
+function BearSVG({ size = 130 }) {
   return (
-    <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" style={{ width: 130, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.15))" }}>
+    <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg"
+      style={{ width: size, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.15))" }}>
       <ellipse cx="80" cy="40" rx="14" ry="18" fill="#b0d8f0" opacity="0.9" />
       <ellipse cx="100" cy="28" rx="14" ry="18" fill="#d4c9a8" opacity="0.9" />
       <ellipse cx="120" cy="38" rx="13" ry="17" fill="#b0d8f0" opacity="0.85" />
@@ -81,11 +93,13 @@ function BearSVG() {
 
 // ── Página principal ───────────────────────────────────────────
 function Home() {
+  const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [count, setCount] = useState("");
   const [status, setStatus] = useState(null);
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
 
   const handleConfirm = async () => {
     if (!name.trim() || !count) {
@@ -105,6 +119,7 @@ function Home() {
       setMsg(`¡Gracias ${name.trim()}! Confirmamos ${count} persona${count == 1 ? "" : "s"}. ¡Nos vemos el 26 de abril! 🩵`);
       setName("");
       setCount("");
+      setFormOpen(false);
     } catch {
       setStatus("error");
       setMsg("Hubo un error al guardar. Intenta de nuevo.");
@@ -113,119 +128,179 @@ function Home() {
     }
   };
 
+  // En móvil el ancho del card es 70% de la pantalla
+  const cardWidth = isMobile ? "70%" : "100%";
+  const maxW = isMobile ? 360 : 480;
+
   return (
     <PageWrapper>
+      {/* Osito — más pequeño en móvil */}
       <div style={{ marginBottom: "-1rem", marginTop: "0.5rem" }}>
-      
+        
       </div>
 
       {/* Card principal */}
-      <div style={{ ...cardStyle, padding: "2rem 2rem 1.5rem", maxWidth: 480, width: "100%", textAlign: "center" }}>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.6rem", fontWeight: 700, color: "#1a3a5c", lineHeight: 1, letterSpacing: 2, textTransform: "uppercase", margin: 0 }}>
+      <div style={{ ...cardStyle, padding: isMobile ? "1.2rem 1rem 1rem" : "2rem 2rem 1.5rem", width: cardWidth, maxWidth: maxW, textAlign: "center" }}>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: isMobile ? "1.8rem" : "2.6rem", fontWeight: 700, color: "#1a3a5c", lineHeight: 1, letterSpacing: 2, textTransform: "uppercase", margin: 0 }}>
           Baby<br />Shower
         </h1>
-        <p style={{ fontSize: "0.75rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "0.6rem 0 0.8rem" }}>
+        <p style={{ fontSize: isMobile ? "0.62rem" : "0.75rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "0.5rem 0 0.6rem" }}>
           Te invitamos a celebrar la llegada de nuestro bebé
         </p>
         <Divider />
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#1a3a5c", letterSpacing: 4, textTransform: "uppercase", margin: "0.3rem 0" }}>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: isMobile ? "1.3rem" : "2rem", fontWeight: 700, color: "#1a3a5c", letterSpacing: isMobile ? 2 : 4, textTransform: "uppercase", margin: "0.3rem 0" }}>
           Liam Alejandro
         </h2>
         <Divider />
-        <p style={{ fontSize: "0.72rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "1.2rem 0 0.8rem" }}>
+        <p style={{ fontSize: "0.65rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "0.8rem 0 0.6rem" }}>
           Detalles del evento
         </p>
-        <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 12, padding: "1rem 1.2rem", textAlign: "left" }}>
+        <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 10, padding: isMobile ? "0.7rem 0.8rem" : "1rem 1.2rem", textAlign: "left" }}>
           {[
             { icon: "📅", text: <span>Domingo <strong>26 de Abril</strong></span> },
             { icon: "🕑", text: <strong>2:00 PM</strong> },
-            { icon: "📍", text: "San Andrés 2306, Los Cajetes, 45234 Zapopan, Jal." },
+            { icon: "📍", text: "San Andrés 2306, Los Cajetes, Zapopan, Jal." },
           ].map((d, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: i < 2 ? "0.5rem" : 0, fontSize: "0.9rem", color: "#1a3a5c" }}>
-              <span style={{ fontSize: 16, marginTop: 1, flexShrink: 0 }}>{d.icon}</span>
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: i < 2 ? "0.4rem" : 0, fontSize: isMobile ? "0.78rem" : "0.9rem", color: "#1a3a5c" }}>
+              <span style={{ fontSize: 13, marginTop: 1, flexShrink: 0 }}>{d.icon}</span>
               <span>{d.text}</span>
             </div>
           ))}
         </div>
-        <p style={{ fontSize: "0.75rem", color: "#3a6d8c", letterSpacing: 2, textTransform: "uppercase", margin: "1.2rem 0 0" }}>
+        <p style={{ fontSize: "0.65rem", color: "#3a6d8c", letterSpacing: 2, textTransform: "uppercase", margin: "0.8rem 0 0" }}>
           Confirmar antes del 15 de abril
         </p>
       </div>
 
-      {/* Formulario */}
-      <div style={{ ...cardStyle, padding: "1.5rem", maxWidth: 480, width: "100%", marginTop: "1.5rem" }}>
-        <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", color: "#1a3a5c", marginBottom: "1rem", textAlign: "center", fontWeight: 400 }}>
-          Confirmar asistencia
-        </h3>
-        {[
-          { label: "Nombre completo", type: "text", val: name, set: setName, placeholder: "Tu nombre" },
-          { label: "Número de personas", type: "number", val: count, set: setCount, placeholder: "¿Cuántos van?" },
-        ].map((f, i) => (
-          <div key={i} style={{ marginBottom: "1rem", textAlign: "left" }}>
-            <label style={{ display: "block", fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase", color: "#3a6d8c", marginBottom: 6 }}>
-              {f.label}
-            </label>
-            <input
-              type={f.type}
-              placeholder={f.placeholder}
-              value={f.val}
-              min={f.type === "number" ? 1 : undefined}
-              max={f.type === "number" ? 20 : undefined}
-              onChange={(e) => { setStatus(null); f.set(e.target.value); }}
-              style={{
-                width: "100%", padding: "10px 14px",
-                border: "1.5px solid rgba(255,255,255,0.7)", borderRadius: 10,
-                fontSize: "0.95rem", fontFamily: "'Lato', sans-serif",
-                background: "rgba(255,255,255,0.35)",
-                backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-                color: "#1a3a5c", outline: "none", boxSizing: "border-box",
-              }}
-            />
-          </div>
-        ))}
-        <button
-          onClick={handleConfirm}
-          disabled={loading}
-          style={{
-            width: "100%", padding: 12,
-            background: loading ? "rgba(122,154,184,0.7)" : "rgba(26,58,92,0.85)",
-            color: "white", border: "none", borderRadius: 10,
-            fontSize: "0.85rem", letterSpacing: 2, textTransform: "uppercase",
-            cursor: loading ? "not-allowed" : "pointer",
-            fontFamily: "'Lato', sans-serif", marginTop: "0.5rem",
-          }}
-        >
-          {loading ? "Guardando..." : "Confirmar asistencia"}
-        </button>
-        {status && (
-          <div style={{
-            marginTop: "0.75rem",
-            background: status === "success" ? "rgba(200,245,220,0.6)" : "rgba(255,220,200,0.6)",
-            borderRadius: 10, padding: "0.9rem", textAlign: "center",
-            color: status === "success" ? "#1a5c3a" : "#8a3a1a", fontSize: "0.9rem",
-          }}>
-            {msg}
-          </div>
-        )}
-      </div>
+      {/* En móvil: botón que abre el formulario como drawer. En desktop: formulario siempre visible */}
+      {isMobile ? (
+        <>
+          <button
+            onClick={() => { setFormOpen(!formOpen); setStatus(null); }}
+            style={{
+              marginTop: "1rem", padding: "10px 28px",
+              background: "rgba(26,58,92,0.82)", color: "white",
+              border: "none", borderRadius: 10, fontSize: "0.78rem",
+              letterSpacing: 2, textTransform: "uppercase",
+              cursor: "pointer", fontFamily: "'Lato', sans-serif",
+              backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+            }}
+          >
+            {formOpen ? "✕ Cerrar" : "✓ Confirmar asistencia"}
+          </button>
 
-      {/* Mapa */}
-      <div style={{ ...cardStyle, maxWidth: 480, width: "100%", marginTop: "1.5rem", overflow: "hidden" }}>
-        <div style={{ background: "rgba(26,58,92,0.75)", color: "white", textAlign: "center", padding: 10, fontSize: "0.75rem", letterSpacing: 2, textTransform: "uppercase" }}>
+          {formOpen && (
+            <div style={{ ...cardStyle, padding: "1.2rem", width: "70%", maxWidth: 360, marginTop: "0.75rem" }}>
+              <FormFields
+                name={name} setName={setName}
+                count={count} setCount={setCount}
+                status={status} setStatus={setStatus}
+                msg={msg} loading={loading}
+                onConfirm={handleConfirm}
+                compact
+              />
+            </div>
+          )}
+
+          {/* Mensaje de éxito fuera del form si se cerró */}
+          {!formOpen && status === "success" && (
+            <div style={{ marginTop: "0.75rem", background: "rgba(200,245,220,0.6)", borderRadius: 10, padding: "0.8rem 1rem", textAlign: "center", color: "#1a5c3a", fontSize: "0.82rem", width: "70%", maxWidth: 360, ...cardStyle }}>
+              {msg}
+            </div>
+          )}
+        </>
+      ) : (
+        <div style={{ ...cardStyle, padding: "1.5rem", maxWidth: 480, width: "100%", marginTop: "1.5rem" }}>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", color: "#1a3a5c", marginBottom: "1rem", textAlign: "center", fontWeight: 400 }}>
+            Confirmar asistencia
+          </h3>
+          <FormFields
+            name={name} setName={setName}
+            count={count} setCount={setCount}
+            status={status} setStatus={setStatus}
+            msg={msg} loading={loading}
+            onConfirm={handleConfirm}
+          />
+        </div>
+      )}
+
+      {/* Mapa — más pequeño en móvil */}
+      <div style={{ ...cardStyle, width: isMobile ? "70%" : "100%", maxWidth: isMobile ? 360 : 480, marginTop: "1.5rem", overflow: "hidden" }}>
+        <div style={{ background: "rgba(26,58,92,0.75)", color: "white", textAlign: "center", padding: 8, fontSize: "0.7rem", letterSpacing: 2, textTransform: "uppercase" }}>
           📍 Ubicación del evento
         </div>
         <iframe
           title="Mapa"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3732.1!2d-103.407!3d20.668!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sSan+Andr%C3%A9s+2306%2C+Los+Cajetes%2C+Zapopan%2C+Jalisco!5e0!3m2!1ses!2smx!4v1680000000000!5m2!1ses!2smx&q=San+Andr%C3%A9s+2306,+Los+Cajetes,+Zapopan,+Jalisco"
-          style={{ width: "100%", height: 280, border: "none", display: "block" }}
+          style={{ width: "100%", height: isMobile ? 180 : 280, border: "none", display: "block" }}
           allowFullScreen loading="lazy"
         />
       </div>
 
-      <p style={{ marginTop: "1.5rem", fontSize: "0.75rem", color: "rgba(26,58,92,0.75)", letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
+      <p style={{ marginTop: "1.5rem", fontSize: "0.72rem", color: "rgba(26,58,92,0.75)", letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
         Con amor, esperando a Liam Alejandro 🩵
       </p>
     </PageWrapper>
+  );
+}
+
+// ── Campos del formulario reutilizables ────────────────────────
+function FormFields({ name, setName, count, setCount, status, setStatus, msg, loading, onConfirm, compact }) {
+  const fs_ = compact ? "0.82rem" : "0.95rem";
+  const lfs = compact ? "0.65rem" : "0.75rem";
+  return (
+    <>
+      {[
+        { label: "Nombre completo", type: "text", val: name, set: setName, placeholder: "Tu nombre" },
+        { label: "Número de personas", type: "number", val: count, set: setCount, placeholder: "¿Cuántos van?" },
+      ].map((f, i) => (
+        <div key={i} style={{ marginBottom: compact ? "0.7rem" : "1rem", textAlign: "left" }}>
+          <label style={{ display: "block", fontSize: lfs, letterSpacing: 2, textTransform: "uppercase", color: "#3a6d8c", marginBottom: 5 }}>
+            {f.label}
+          </label>
+          <input
+            type={f.type}
+            placeholder={f.placeholder}
+            value={f.val}
+            min={f.type === "number" ? 1 : undefined}
+            max={f.type === "number" ? 20 : undefined}
+            onChange={(e) => { setStatus(null); f.set(e.target.value); }}
+            style={{
+              width: "100%", padding: compact ? "8px 10px" : "10px 14px",
+              border: "1.5px solid rgba(255,255,255,0.7)", borderRadius: 10,
+              fontSize: fs_, fontFamily: "'Lato', sans-serif",
+              background: "rgba(255,255,255,0.35)",
+              backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+              color: "#1a3a5c", outline: "none", boxSizing: "border-box",
+            }}
+          />
+        </div>
+      ))}
+      <button
+        onClick={onConfirm}
+        disabled={loading}
+        style={{
+          width: "100%", padding: compact ? 9 : 12,
+          background: loading ? "rgba(122,154,184,0.7)" : "rgba(26,58,92,0.85)",
+          color: "white", border: "none", borderRadius: 10,
+          fontSize: lfs, letterSpacing: 2, textTransform: "uppercase",
+          cursor: loading ? "not-allowed" : "pointer",
+          fontFamily: "'Lato', sans-serif", marginTop: "0.3rem",
+        }}
+      >
+        {loading ? "Guardando..." : "Confirmar"}
+      </button>
+      {status && (
+        <div style={{
+          marginTop: "0.6rem",
+          background: status === "success" ? "rgba(200,245,220,0.6)" : "rgba(255,220,200,0.6)",
+          borderRadius: 10, padding: "0.7rem", textAlign: "center",
+          color: status === "success" ? "#1a5c3a" : "#8a3a1a", fontSize: compact ? "0.78rem" : "0.9rem",
+        }}>
+          {msg}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -234,8 +309,10 @@ function Confirmados() {
   const [lista, setLista] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [confirmandoBorrar, setConfirmandoBorrar] = useState(false);
+  const [confirmandoBorrarTodo, setConfirmandoBorrarTodo] = useState(false);
   const [borrando, setBorrando] = useState(false);
+  // índice del invitado cuya fila está en modo "confirmar borrado"
+  const [confirmandoIdx, setConfirmandoIdx] = useState(null);
 
   const cargar = () => {
     setLoading(true);
@@ -255,29 +332,31 @@ function Confirmados() {
     } catch { return iso; }
   };
 
-  const descargarExcel = () => {
-    window.location.href = "/api/confirmados/excel";
-  };
+  const descargarExcel = () => { window.location.href = "/api/confirmados/excel"; };
 
   const borrarTodo = async () => {
-    if (!confirmandoBorrar) {
-      setConfirmandoBorrar(true);
-      return;
-    }
+    if (!confirmandoBorrarTodo) { setConfirmandoBorrarTodo(true); return; }
     setBorrando(true);
     try {
       await fetch("/api/confirmados", { method: "DELETE" });
       setLista([]);
-      setConfirmandoBorrar(false);
-    } catch {
-      setError("No se pudo borrar.");
-    } finally {
-      setBorrando(false);
-    }
+      setConfirmandoBorrarTodo(false);
+    } catch { setError("No se pudo borrar."); }
+    finally { setBorrando(false); }
+  };
+
+  const borrarUno = async (idx) => {
+    if (confirmandoIdx !== idx) { setConfirmandoIdx(idx); return; }
+    try {
+      const res = await fetch(`/api/confirmados/${idx}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setLista((prev) => prev.filter((_, i) => i !== idx));
+      setConfirmandoIdx(null);
+    } catch { setError("No se pudo borrar."); }
   };
 
   const btnBase = {
-    padding: "10px 18px", borderRadius: 10, fontSize: "0.78rem",
+    padding: "9px 16px", borderRadius: 10, fontSize: "0.75rem",
     letterSpacing: 2, textTransform: "uppercase", cursor: "pointer",
     fontFamily: "'Lato', sans-serif", border: "none", fontWeight: 700,
   };
@@ -299,51 +378,30 @@ function Confirmados() {
 
         {/* Totales */}
         {!loading && !error && (
-          <div style={{ display: "flex", gap: 12, marginBottom: "1.5rem" }}>
-            {[
-              { label: "Familias", value: lista.length },
-              { label: "Total personas", value: total },
-            ].map((m, i) => (
+          <div style={{ display: "flex", gap: 12, marginBottom: "1.2rem" }}>
+            {[{ label: "Familias", value: lista.length }, { label: "Total personas", value: total }].map((m, i) => (
               <div key={i} style={{ ...cardStyle, flex: 1, padding: "1rem", textAlign: "center" }}>
                 <div style={{ fontSize: "2rem", fontWeight: 700, color: "#1a3a5c", fontFamily: "'Playfair Display', serif" }}>{m.value}</div>
-                <div style={{ fontSize: "0.72rem", letterSpacing: 2, textTransform: "uppercase", color: "#3a6d8c", marginTop: 4 }}>{m.label}</div>
+                <div style={{ fontSize: "0.7rem", letterSpacing: 2, textTransform: "uppercase", color: "#3a6d8c", marginTop: 4 }}>{m.label}</div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Botones de acción */}
+        {/* Botones de acción globales */}
         {!loading && !error && lista.length > 0 && (
           <div style={{ display: "flex", gap: 10, marginBottom: "1rem", flexWrap: "wrap" }}>
-            {/* Descargar Excel */}
-            <button
-              onClick={descargarExcel}
-              style={{ ...btnBase, background: "rgba(26,92,58,0.82)", color: "white", flex: 1, minWidth: 140 }}
-            >
+            <button onClick={descargarExcel} style={{ ...btnBase, background: "rgba(26,92,58,0.82)", color: "white", flex: 1, minWidth: 140 }}>
               ⬇ Descargar Excel
             </button>
-
-            {/* Borrar todo — doble confirmación */}
             <button
-              onClick={borrarTodo}
-              disabled={borrando}
-              style={{
-                ...btnBase, flex: 1, minWidth: 140,
-                background: confirmandoBorrar ? "rgba(162,45,45,0.85)" : "rgba(255,255,255,0.35)",
-                color: confirmandoBorrar ? "white" : "#8a3a1a",
-                border: "1.5px solid rgba(162,45,45,0.5)",
-                backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-              }}
+              onClick={borrarTodo} disabled={borrando}
+              style={{ ...btnBase, flex: 1, minWidth: 140, background: confirmandoBorrarTodo ? "rgba(162,45,45,0.85)" : "rgba(255,255,255,0.35)", color: confirmandoBorrarTodo ? "white" : "#8a3a1a", border: "1.5px solid rgba(162,45,45,0.5)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
             >
-              {borrando ? "Borrando..." : confirmandoBorrar ? "⚠ Confirmar borrado" : "🗑 Borrar todo"}
+              {borrando ? "Borrando..." : confirmandoBorrarTodo ? "⚠ Confirmar borrado" : "🗑 Borrar todo"}
             </button>
-
-            {/* Cancelar borrado */}
-            {confirmandoBorrar && (
-              <button
-                onClick={() => setConfirmandoBorrar(false)}
-                style={{ ...btnBase, background: "rgba(255,255,255,0.35)", color: "#3a6d8c", border: "1.5px solid rgba(255,255,255,0.6)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flex: 1, minWidth: 100 }}
-              >
+            {confirmandoBorrarTodo && (
+              <button onClick={() => setConfirmandoBorrarTodo(false)} style={{ ...btnBase, background: "rgba(255,255,255,0.35)", color: "#3a6d8c", border: "1.5px solid rgba(255,255,255,0.6)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", flex: 1, minWidth: 90 }}>
                 Cancelar
               </button>
             )}
@@ -358,23 +416,64 @@ function Confirmados() {
             <div style={{ padding: "2rem", textAlign: "center", color: "#3a6d8c", fontSize: "0.9rem" }}>Aún no hay confirmaciones 🩵</div>
           )}
           {!loading && lista.map((c, i) => (
-            <div key={i} style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "0.9rem 1.2rem", gap: 12,
-              borderBottom: i < lista.length - 1 ? "1px solid rgba(176,216,240,0.35)" : "none",
-            }}>
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(176,216,240,0.6)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.95rem", color: "#1a3a5c", flexShrink: 0 }}>
-                {c.nombre.charAt(0).toUpperCase()}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, color: "#1a3a5c", fontSize: "0.95rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {c.nombre}
+            <div key={i}>
+              <div style={{
+                display: "flex", alignItems: "center",
+                padding: "0.85rem 1rem", gap: 10,
+                borderBottom: "1px solid rgba(176,216,240,0.35)",
+              }}>
+                {/* Avatar */}
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(176,216,240,0.6)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.9rem", color: "#1a3a5c", flexShrink: 0 }}>
+                  {c.nombre.charAt(0).toUpperCase()}
                 </div>
-                <div style={{ fontSize: "0.75rem", color: "#3a6d8c", marginTop: 2 }}>{formatDate(c.fecha)}</div>
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, color: "#1a3a5c", fontSize: "0.9rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {c.nombre}
+                  </div>
+                  <div style={{ fontSize: "0.72rem", color: "#3a6d8c", marginTop: 2 }}>{formatDate(c.fecha)}</div>
+                </div>
+                {/* Cantidad */}
+                <div style={{ background: "rgba(26,58,92,0.8)", color: "white", borderRadius: 20, padding: "3px 12px", fontSize: "0.78rem", fontWeight: 700, flexShrink: 0, whiteSpace: "nowrap" }}>
+                  {c.cantidad} {c.cantidad === 1 ? "persona" : "personas"}
+                </div>
+                {/* Botón borrar individual */}
+                <button
+                  onClick={() => borrarUno(i)}
+                  title="Eliminar"
+                  style={{
+                    flexShrink: 0, width: 30, height: 30, borderRadius: "50%",
+                    border: "none", cursor: "pointer", fontSize: "0.8rem",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    background: confirmandoIdx === i ? "rgba(162,45,45,0.85)" : "rgba(255,100,100,0.18)",
+                    color: confirmandoIdx === i ? "white" : "#a32d2d",
+                    transition: "background 0.2s",
+                  }}
+                >
+                  {confirmandoIdx === i ? "✓" : "✕"}
+                </button>
               </div>
-              <div style={{ background: "rgba(26,58,92,0.8)", color: "white", borderRadius: 20, padding: "4px 14px", fontSize: "0.82rem", fontWeight: 700, flexShrink: 0, whiteSpace: "nowrap" }}>
-                {c.cantidad} {c.cantidad === 1 ? "persona" : "personas"}
-              </div>
+
+              {/* Fila de confirmación de borrado individual */}
+              {confirmandoIdx === i && (
+                <div style={{ background: "rgba(255,220,200,0.5)", padding: "0.5rem 1rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, borderBottom: "1px solid rgba(176,216,240,0.35)" }}>
+                  <span style={{ fontSize: "0.75rem", color: "#8a3a1a" }}>¿Eliminar a {c.nombre}?</span>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      onClick={() => borrarUno(i)}
+                      style={{ ...btnBase, padding: "5px 12px", background: "rgba(162,45,45,0.85)", color: "white", fontSize: "0.7rem" }}
+                    >
+                      Sí, eliminar
+                    </button>
+                    <button
+                      onClick={() => setConfirmandoIdx(null)}
+                      style={{ ...btnBase, padding: "5px 12px", background: "rgba(255,255,255,0.5)", color: "#3a6d8c", border: "1px solid rgba(255,255,255,0.7)", fontSize: "0.7rem" }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -390,7 +489,7 @@ function Confirmados() {
   );
 }
 
-// ── Router simple ──────────────────────────────────────────────
+// ── Router ─────────────────────────────────────────────────────
 export default function App() {
   const path = window.location.pathname;
   return path === "/confirmados" ? <Confirmados /> : <Home />;
