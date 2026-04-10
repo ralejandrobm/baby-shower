@@ -61,6 +61,51 @@ function BearSVG({ size = 130 }) {
   );
 }
 
+// ── Mesa de Regalos ────────────────────────────────────────────
+function MesaRegalos({ isMobile }) {
+  const cardWidth = isMobile ? "78%" : "100%";
+  const maxW = isMobile ? 360 : 480;
+
+  return (
+    <div style={{ ...cardStyle, padding: isMobile ? "1rem" : "1.5rem", width: cardWidth, maxWidth: maxW, marginTop: "1.5rem", textAlign: "center" }}>
+      <p style={{ fontSize: "0.65rem", letterSpacing: 3, color: "#3a6d8c", textTransform: "uppercase", margin: "0 0 0.4rem" }}>
+        Mesa de regalos
+      </p>
+      <Divider />
+      <p style={{ fontSize: isMobile ? "0.78rem" : "0.9rem", color: "#1a3a5c", margin: "0.6rem 0 0.2rem" }}>
+        🎁 Liverpool
+      </p>
+      <p style={{ fontSize: isMobile ? "0.72rem" : "0.82rem", color: "#3a6d8c", margin: "0 0 0.8rem", letterSpacing: 1 }}>
+        No. de mesa:{" "}
+        <strong style={{ color: "#1a3a5c", fontSize: isMobile ? "1rem" : "1.2rem", letterSpacing: 2 }}>
+          51985159
+        </strong>
+      </p>
+      <a
+        href="https://mesaderegalos.liverpool.com.mx/milistaderegalos/51985159"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "inline-block",
+          padding: isMobile ? "9px 24px" : "11px 32px",
+          background: "rgba(26,58,92,0.85)",
+          color: "white",
+          borderRadius: 10,
+          fontSize: "0.72rem",
+          letterSpacing: 2,
+          textTransform: "uppercase",
+          textDecoration: "none",
+          fontFamily: "'Lato', sans-serif",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+        }}
+      >
+        Ver mesa de regalos →
+      </a>
+    </div>
+  );
+}
+
 // ── Página principal ───────────────────────────────────────────
 function Home() {
   const isMobile = useIsMobile();
@@ -98,13 +143,12 @@ function Home() {
     }
   };
 
-  // En móvil el ancho del card es 78% de la pantalla
   const cardWidth = isMobile ? "78%" : "100%";
   const maxW = isMobile ? 360 : 480;
 
   return (
     <PageWrapper>
-      {/* Osito — más pequeño en móvil */}
+      {/* Osito */}
       <div style={{ marginBottom: "-1rem", marginTop: "0.5rem" }}>
         <BearSVG/>
       </div>
@@ -142,7 +186,7 @@ function Home() {
         </p>
       </div>
 
-      {/* En móvil: botón que abre el formulario como drawer. En desktop: formulario siempre visible */}
+      {/* Confirmar asistencia */}
       {isMobile ? (
         <>
           <button
@@ -172,7 +216,6 @@ function Home() {
             </div>
           )}
 
-          {/* Mensaje de éxito fuera del form si se cerró */}
           {!formOpen && status === "success" && (
             <div style={{ marginTop: "0.75rem", background: "rgba(200,245,220,0.6)", borderRadius: 10, padding: "0.8rem 1rem", textAlign: "center", color: "#1a5c3a", fontSize: "0.82rem", width: "78%", maxWidth: 360, ...cardStyle }}>
               {msg}
@@ -194,7 +237,10 @@ function Home() {
         </div>
       )}
 
-      {/* Mapa — más pequeño en móvil */}
+      {/* Mesa de regalos */}
+      <MesaRegalos isMobile={isMobile} />
+
+      {/* Mapa */}
       <div style={{ ...cardStyle, width: isMobile ? "78%" : "100%", maxWidth: isMobile ? 360 : 480, marginTop: "1.5rem", overflow: "hidden" }}>
         <div style={{ background: "rgba(26,58,92,0.75)", color: "white", textAlign: "center", padding: 8, fontSize: "0.7rem", letterSpacing: 2, textTransform: "uppercase" }}>
           📍 Ubicación del evento
@@ -281,7 +327,6 @@ function Confirmados() {
   const [error, setError] = useState(null);
   const [confirmandoBorrarTodo, setConfirmandoBorrarTodo] = useState(false);
   const [borrando, setBorrando] = useState(false);
-  // índice del invitado cuya fila está en modo "confirmar borrado"
   const [confirmandoIdx, setConfirmandoIdx] = useState(null);
 
   const cargar = () => {
@@ -392,22 +437,18 @@ function Confirmados() {
                 padding: "0.85rem 1rem", gap: 10,
                 borderBottom: "1px solid rgba(176,216,240,0.35)",
               }}>
-                {/* Avatar */}
                 <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(176,216,240,0.6)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.9rem", color: "#1a3a5c", flexShrink: 0 }}>
                   {c.nombre.charAt(0).toUpperCase()}
                 </div>
-                {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, color: "#1a3a5c", fontSize: "0.9rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {c.nombre}
                   </div>
                   <div style={{ fontSize: "0.72rem", color: "#3a6d8c", marginTop: 2 }}>{formatDate(c.fecha)}</div>
                 </div>
-                {/* Cantidad */}
                 <div style={{ background: "rgba(26,58,92,0.8)", color: "white", borderRadius: 20, padding: "3px 12px", fontSize: "0.78rem", fontWeight: 700, flexShrink: 0, whiteSpace: "nowrap" }}>
                   {c.cantidad} {c.cantidad === 1 ? "persona" : "personas"}
                 </div>
-                {/* Botón borrar individual */}
                 <button
                   onClick={() => borrarUno(i)}
                   title="Eliminar"
@@ -424,21 +465,14 @@ function Confirmados() {
                 </button>
               </div>
 
-              {/* Fila de confirmación de borrado individual */}
               {confirmandoIdx === i && (
                 <div style={{ background: "rgba(255,220,200,0.5)", padding: "0.5rem 1rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, borderBottom: "1px solid rgba(176,216,240,0.35)" }}>
                   <span style={{ fontSize: "0.75rem", color: "#8a3a1a" }}>¿Eliminar a {c.nombre}?</span>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <button
-                      onClick={() => borrarUno(i)}
-                      style={{ ...btnBase, padding: "5px 12px", background: "rgba(162,45,45,0.85)", color: "white", fontSize: "0.7rem" }}
-                    >
+                    <button onClick={() => borrarUno(i)} style={{ ...btnBase, padding: "5px 12px", background: "rgba(162,45,45,0.85)", color: "white", fontSize: "0.7rem" }}>
                       Sí, eliminar
                     </button>
-                    <button
-                      onClick={() => setConfirmandoIdx(null)}
-                      style={{ ...btnBase, padding: "5px 12px", background: "rgba(255,255,255,0.5)", color: "#3a6d8c", border: "1px solid rgba(255,255,255,0.7)", fontSize: "0.7rem" }}
-                    >
+                    <button onClick={() => setConfirmandoIdx(null)} style={{ ...btnBase, padding: "5px 12px", background: "rgba(255,255,255,0.5)", color: "#3a6d8c", border: "1px solid rgba(255,255,255,0.7)", fontSize: "0.7rem" }}>
                       Cancelar
                     </button>
                   </div>
